@@ -100,7 +100,7 @@ static NSString *ASTextNodeTruncationTokenAttributeName = @"ASTextNodeTruncation
 @end
 
 static NSCache *sharedRendererCache()
-{ 
+{
  static dispatch_once_t onceToken;
  static NSCache *__rendererCache = nil;
  dispatch_once(&onceToken, ^{
@@ -113,7 +113,7 @@ static NSCache *sharedRendererCache()
 /**
  The concept here is that neither the node nor layout should ever have a strong reference to the renderer object.
  This is to reduce memory load when loading thousands and thousands of text nodes into memory at once. Instead
- we maintain a LRU renderer cache that is queried via a unique key based on text kit attributes and constrained size. 
+ we maintain a LRU renderer cache that is queried via a unique key based on text kit attributes and constrained size.
  */
 
 static ASTextKitRenderer *rendererForAttributes(ASTextKitAttributes attributes, CGSize constrainedSize)
@@ -435,7 +435,7 @@ static NSArray *DefaultLinkAttributeNames() {
 #pragma mark - Modifying User Text
 
 // Returns the ascender of the first character in attributedString by also including the line height if specified in paragraph style.
-+ (CGFloat)ascenderWithAttributedString:(NSAttributedString *)attributedString 
++ (CGFloat)ascenderWithAttributedString:(NSAttributedString *)attributedString
 {
   UIFont *font = [attributedString attribute:NSFontAttributeName atIndex:0 effectiveRange:NULL];
   NSParagraphStyle *paragraphStyle = [attributedString attribute:NSParagraphStyleAttributeName atIndex:0 effectiveRange:NULL];
@@ -964,30 +964,29 @@ static CGRect ASTextNodeAdjustRenderRectForShadowPadding(CGRect rendererRect, UI
 
 - (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
 {
-  ASDisplayNodeAssertMainThread();
-  
-  if (!_passthroughNonlinkTouches) {
-    return [super pointInside:point withEvent:event];
-  }
-
-  NSRange range = NSMakeRange(0, 0);
-  NSString *linkAttributeName = nil;
-  BOOL inAdditionalTruncationMessage = NO;
-
-  id linkAttributeValue = [self _linkAttributeValueAtPoint:point
-                                             attributeName:&linkAttributeName
-                                                     range:&range
-                             inAdditionalTruncationMessage:&inAdditionalTruncationMessage
-                                           forHighlighting:YES];
-
-  NSUInteger lastCharIndex = NSIntegerMax;
-  BOOL linkCrossesVisibleRange = (lastCharIndex > range.location) && (lastCharIndex < NSMaxRange(range) - 1);
-
-  if (range.length > 0 && !linkCrossesVisibleRange && linkAttributeValue != nil && linkAttributeName != nil) {
-    return YES;
-  } else {
-    return NO;
-  }
+    ASDisplayNodeAssertMainThread();
+    
+    if (!_passthroughNonlinkTouches) {
+        return [super pointInside:point withEvent:event];
+    }
+    
+    NSRange range = NSMakeRange(0, 0);
+    NSString *linkAttributeName = nil;
+    BOOL inAdditionalTruncationMessage = NO;
+    
+    id linkAttributeValue = [self _linkAttributeValueAtPoint:point
+                                               attributeName:&linkAttributeName
+                                                       range:&range
+                               inAdditionalTruncationMessage:&inAdditionalTruncationMessage
+                                             forHighlighting:YES];
+    
+    NSUInteger lastCharIndex = NSIntegerMax;
+    BOOL linkCrossesVisibleRange = (lastCharIndex > range.location) && (lastCharIndex < NSMaxRange(range) - 1);
+    if (range.length > 0 && !linkCrossesVisibleRange && linkAttributeValue != nil && linkAttributeName != nil || inAdditionalTruncationMessage) {
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
